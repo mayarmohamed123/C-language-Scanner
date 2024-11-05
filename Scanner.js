@@ -10,15 +10,15 @@ function scanCode(code) {
   const patterns = [
     {
       type: "keyword",
-      regex: /\b(int|return|if|else|while|for|char|float|double|void|main)\b/g,
+      regex: /\b(for|int|return|if|else|while|char|float|double|void|main)\b/g,
     },
     { type: "identifier", regex: /\b[A-Za-z_][A-Za-z0-9_]*\b/g },
-    { type: "operator", regex: /[+\-*/=<>!&|]/g },
-    { type: "number", regex: /\b\d+(\.\d+)?\b/g },
-    { type: "charConst", regex: /'[^']'/g },
-    { type: "stringConst", regex: /"[^"]*"/g },
-    { type: "specialChar", regex: /[{}();,]/g },
-    { type: "comment", regex: /\/\/[^\n]*|\/\*[\s\S]*?\*\//g },
+    { type: "operator", regex: /[+\-*/=<>!&|]+/g },
+    { type: "numeric", regex: /\b\d+(\.\d+)?(e[+-]?\d+)?\b/g }, // Numeric constant including scientific notation
+    { type: "charConst", regex: /'[^']'/g }, // Character constant
+    { type: "specialChar", regex: /[{}();,]/g }, // Special characters
+    { type: "comment", regex: /\/\/[^\n]*/g }, // Single-line comments
+    { type: "whitespace", regex: /\s+/g }, // Whitespace
   ];
 
   const tokens = [];
@@ -32,7 +32,10 @@ function scanCode(code) {
       const match = regex.exec(code);
 
       if (match && match.index === lastIndex) {
-        tokens.push({ type, value: match[0] });
+        // Only push non-whitespace tokens
+        if (type !== "whitespace") {
+          tokens.push({ type, value: match[0] });
+        }
         lastIndex += match[0].length;
         matchFound = true;
         break;
